@@ -1,6 +1,12 @@
 # m2mm
 
-This is a Chrome browser extension that converts Markdown content from the clipboard into a Markmap.
+## github page
+
+- https://tdahuyou.github.io/m2mm/
+
+## Introduction
+
+m2mm is a Chrome browser extension that converts Markdown content from the clipboard into a Markmap.
 
 ## Usage
 
