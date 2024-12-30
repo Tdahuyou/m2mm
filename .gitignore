@@ -34,3 +34,5 @@ coverage
 distx/
 
 popup.html
+
+*.zip

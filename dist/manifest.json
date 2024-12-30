@@ -3,28 +3,12 @@
     "name": "m2mm",
     "version": "1.0.0",
     "description": "Chrome extension to convert GitHub articles or clipboard content into Markmap or Mindmap",
-    "host_permissions": [
-      "https://*/*",
-      "http://*/*"
-    ],
     "background": {
       "service_worker": "service-worker.js"
     },
     "permissions": [
       "sidePanel",
-      "tabs",
-      "activeTab",
-      "storage",
-      "clipboardRead",
-      "scripting"
-    ],
-    "content_scripts": [
-      {
-        "js": ["content.js"],
-        "matches": [
-          "https://github.com/*"
-        ]
-      }
+      "clipboardRead"
     ],
     "side_panel": {
       "default_path": "index.html"

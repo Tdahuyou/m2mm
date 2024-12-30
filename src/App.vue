@@ -131,9 +131,13 @@ async function destroyMM(delay = 0) {
 
 <template>
   <div class="markmap-wrapper" ref="markmapSvgContainerRef">
-    输入展开层次：<input type="number" min="1" step="1" max="100" style="width: 2.5rem;" placeholder="请输入展开层次"
-      v-model="expandLevel">
-    <button @click="genClipboard" title="从剪切板中生成" style="margin-left: 1rem;">update</button>
+    <div class="btn-group">
+      <a href="https://m2mm.tdahuyou.cn" target="_blank" title="m2mm 在线访问链接">live</a>
+      <a href="https://github.com/Tdahuyou/m2mm" target="_blank" title="m2mm github 仓库地址">github</a>
+      <span title="输入展开的层次">level: </span><input type="number" min="1" step="1" max="100" style="width: 2.5rem;" placeholder="请输入展开层次"
+        v-model="expandLevel">
+      <button @click="genClipboard" title="从剪切板中生成">update</button>
+    </div>
     <!-- <button @click="genGithub" title="读取 github 文章">github</button> -->
     <svg ref="markmapSvgRef" style="height: 100%; width: 100%;"></svg>
   </div>
@@ -144,6 +148,18 @@ async function destroyMM(delay = 0) {
   width: 98vw;
   height: 98vh;
   overflow: hidden;
+}
+
+.markmap-wrapper .btn-group {
+  position: relative;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.markmap-wrapper .btn-group a {
+  color: #1E90FF;
 }
 </style>
 
