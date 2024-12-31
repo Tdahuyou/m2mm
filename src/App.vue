@@ -46,10 +46,9 @@ async function genClipboard() {
     console.error('error - navigator.clipboard.readText =>', e);
   }) as string;
   // 将 mdStr 中所有的代码块删除
-  mdStr = mdStr.replace(/```[\s\S]*?```/g, '');
+  // mdStr = mdStr.replace(/```[\s\S]*?```/g, '');
 
-  // for personnal notes --> https://github.com/Tdahuyou/*
-  // 将个人笔记中的目录区域的开始行和结束行移除。
+  // !NOTE - for personnal notes --> https://github.com/Tdahuyou/* - 将个人笔记中的目录区域的开始行和结束行移除。
   mdStr = mdStr.split('\n').filter(line => !line.includes('region:toc')).join('\n');
 
   // !for debugger - 将 mdStr 写入剪切板
