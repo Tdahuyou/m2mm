@@ -100,3 +100,11 @@ https://github.com/Tdahuyou/javascript/blob/main/0001.%20var%20%E5%85%B3%E9%94%A
 - 具体选择哪个 AI 模型，可以多体验一下，选择一个合适的即可。
 - 可以保存一下提问模板，后续每次在提问的时候，只需要更新咨询的文章连接即可。
 - 也可以多问几篇文章，然后利用类似文本编辑器（比如 vscode）对 AI 的回复格式做一些微调，合并在一起，然后一起丢到 m2mm 中，一次阅读多篇文档。
+
+## ⌛️ 自动识别文章
+
+- 基本流程：
+  - 第一步：自动将页面 html 转为 markdown；
+  - 第二步：再生成 markmap；
+- [turndown](https://github.com/mixmark-io/turndown#readme) - A library that converts HTML to Markdown
+- 实测下来效果不太好，就没深究了，让 AI 来做第一步感觉效果反而好点儿。很多 AI 工具都具备解读文章，并将其转为 markmap 的功能，大致的流程应该也是上述这两步。手动将内容复制到 m2mm 中，从流程上来说多了一步，好处是能够在丢到 m2mm 之前，对内容做一些二次编辑，生成自己更想要的结果。
