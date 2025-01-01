@@ -131,7 +131,7 @@ async function destroyMM(delay = 0) {
 <template>
   <div class="markmap-wrapper" ref="markmapSvgContainerRef">
     <div class="btn-group">
-      <a href="https://m2mm.tdahuyou.cn" target="_blank" title="m2mm 在线访问链接">live</a>
+      <a href="https://tdahuyou.github.io/m2mm/" target="_blank" title="m2mm 在线访问链接">live</a>
       <a href="https://github.com/Tdahuyou/m2mm" target="_blank" title="m2mm github 仓库地址">github</a>
       <span title="输入展开的层次">level: </span><input type="number" min="1" step="1" max="100" style="width: 2.5rem;" placeholder="请输入展开层次"
         v-model="expandLevel">
