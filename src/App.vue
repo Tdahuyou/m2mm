@@ -21,12 +21,10 @@ const defaultOptions = {
 };
 
 let markmap: Markmap | null = null;
-let markmapData: any = null;
 
-onMounted(async () => {
-  await updateMM();
-  initToolbar();
-});
+let mdStr: string = ''; // msg from user's clipboard
+
+onMounted(async () => await updateMM());
 
 // !NOTE 当 expandLevel 变化后立刻更新 markmap 有时会失败。
 // watch(expandLevel, async () => await updateMM());
@@ -41,25 +39,53 @@ function initToolbar() {
   markmapSvgContainerRef.value.append(el);
 }
 
-async function genClipboard() {
-  let mdStr = await navigator.clipboard.readText().catch(e => {
-    console.error('error - navigator.clipboard.readText =>', e);
-  }) as string;
-  // 将 mdStr 中所有的代码块删除
+const fetchDataFromClipboard = async () => await navigator.clipboard.readText().catch(e => console.error('error - navigator.clipboard.readText =>', e)) as string;
+const handleDataBeforeUpdateMM = (data: string) => {
+  let result = '';
+  // 将 mdStr 中所有的代码块删除，实测当内容中含有代码快时，渲染效果不太好，会导致后续的大量内容丢失。
   // mdStr = mdStr.replace(/```[\s\S]*?```/g, '');
 
-  // !NOTE - for personnal notes --> https://github.com/Tdahuyou/* - 将个人笔记中的目录区域的开始行和结束行移除。
-  mdStr = mdStr.split('\n').filter(line => !line.includes('region:toc')).join('\n');
+  // for personnal notes --> https://tdahuyou.github.io/notes/
+  // 将个人笔记中的目录区域的开始行和结束行的注释内容移除。
+  result = data.split('\n').filter(line => !line.includes('region:toc')).join('\n');
 
   // !for debugger - 将 mdStr 写入剪切板
-  navigator.clipboard.writeText(mdStr).catch(e => {
+  navigator.clipboard.writeText(result).catch(e => {
     console.error('error - navigator.clipboard.writeText =>', e);
   });
 
-  const { root } = transformer.transform(mdStr as string);
-  markmapData = root;
+  return result;
+}
+
+/**
+ * 读取剪切板中的数据
+ * 对数据进行简单的预处理
+ * 生成 markmap 思维导图
+ */
+async function genMM_Clipboard() {
+  mdStr = await fetchDataFromClipboard();
+  mdStr = handleDataBeforeUpdateMM(mdStr);
   await updateMM();
 }
+
+/**
+ * 接收来自 TNotes 中的消息
+ * 对数据进行简单的预处理
+ * 生成 markmap 思维导图
+ * @param e 监听到的消息事件。
+ */
+async function genMM_PostMessage(e: MessageEvent) {
+  if (e.data.senderID !== '__TNotes__') return // 消息来源验证
+  console.log('m2mm received message event from __TNotes__:', e)
+  mdStr = handleDataBeforeUpdateMM(e.data.message);
+  await updateMM();
+}
+
+/**
+ * 使用 post message 实现跨标签页通信。
+ * 主要配合 TNotes 中的笔记大纲使用，实现一键生成 markmap 思维导图的功能。
+ */
+ window.addEventListener('message', genMM_PostMessage)
 
 async function updateMM() {
   await destroyMM(500);
@@ -68,6 +94,7 @@ async function updateMM() {
     ...defaultOptions
   });
   initToolbar();
+  const { root: markmapData } = transformer.transform(mdStr as string);
   if (markmapData) {
     markmap.setData(markmapData);
     await markmap.fit().catch(e => {
@@ -133,9 +160,10 @@ async function destroyMM(delay = 0) {
     <div class="btn-group">
       <a href="https://m2mm.tdahuyou.cn" target="_blank" title="m2mm 在线访问链接">live</a>
       <a href="https://github.com/Tdahuyou/m2mm" target="_blank" title="m2mm github 仓库地址">github</a>
+      <button @click="genMM_Clipboard" title="粘贴剪切板中的内容，生成 markmap 思维导图。">paste</button>
       <span title="输入展开的层次">level: </span><input type="number" min="1" step="1" max="100" style="width: 2.5rem;" placeholder="请输入展开层次"
         v-model="expandLevel">
-      <button @click="genClipboard" title="从剪切板中生成">update</button>
+      <button @click="updateMM" title="更新展开层级。">change level</button>
     </div>
     <!-- <button @click="genGithub" title="读取 github 文章">github</button> -->
     <svg ref="markmapSvgRef" style="height: 100%; width: 100%;"></svg>
