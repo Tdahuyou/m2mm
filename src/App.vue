@@ -4,6 +4,10 @@ import { Transformer } from 'markmap-lib';
 import { Markmap } from 'markmap-view';
 import { Toolbar } from 'markmap-toolbar';
 
+// icon from => https://icon-sets.iconify.design/?query=github
+import icon__m2mm from './icon__m2mm.svg';
+import icon__github from './icon__github.svg'
+
 const transformer = new Transformer();
 
 const markmapSvgContainerRef = ref<HTMLDivElement | undefined>(undefined);
@@ -158,12 +162,15 @@ async function destroyMM(delay = 0) {
 <template>
   <div class="markmap-wrapper" ref="markmapSvgContainerRef">
     <div class="btn-group">
-      <a href="https://tdahuyou.github.io/m2mm/" target="_blank" title="m2mm 在线访问链接">live</a>
-      <a href="https://github.com/Tdahuyou/m2mm" target="_blank" title="m2mm github 仓库地址">github</a>
-      <button @click="genMM_Clipboard" title="粘贴剪切板中的内容，生成 markmap 思维导图。">paste</button>
-      <span title="输入展开的层次">level: </span><input type="number" min="1" step="1" max="100" style="width: 2.5rem;" placeholder="请输入展开层次"
-        v-model="expandLevel">
-      <button @click="updateMM" title="更新展开层级。">change level</button>
+      <button @click="genMM_Clipboard" title="Paste content from the clipboard and generate a markmap mind map.">paste</button>
+      <div title="Input the expand level">level: <input type="number" min="1" step="1" max="100" style="width: 2.5rem;" placeholder="level" v-model="expandLevel"></div>
+      <button @click="updateMM" title="Update the expand level.">update</button>
+      <a href="https://tdahuyou.github.io/m2mm/" target="_blank" title="m2mm live access link">
+        <img :src="icon__m2mm" alt="m2mm live" />
+      </a>
+      <a href="https://github.com/Tdahuyou/m2mm" target="_blank" title="m2mm GitHub repository">
+        <img :src="icon__github" alt="m2mm GitHub" />
+      </a>
     </div>
     <!-- <button @click="genGithub" title="读取 github 文章">github</button> -->
     <svg ref="markmapSvgRef" style="height: 100%; width: 100%;"></svg>
@@ -177,16 +184,33 @@ async function destroyMM(delay = 0) {
   overflow: hidden;
 }
 
+.markmap-wrapper button {
+  outline: none;
+  border: none;
+  background: #666;
+  cursor: pointer;
+  color: white;
+  border-radius: .2rem;
+  padding: .2rem .4rem;
+}
+
 .markmap-wrapper .btn-group {
   position: relative;
-  top: 1rem;
-  left: 1rem;
-  display: flex;
-  gap: 1rem;
+    top: 1rem;
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    height: 1.5rem;
+    line-height: 1.5rem;
 }
 
 .markmap-wrapper .btn-group a {
   color: #1E90FF;
+}
+
+.markmap-wrapper .btn-group a img {
+  width: 1.2rem;
+  vertical-align: middle;
 }
 </style>
 
