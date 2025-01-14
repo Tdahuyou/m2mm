@@ -6,7 +6,47 @@ import { Toolbar } from 'markmap-toolbar';
 
 // icon from => https://icon-sets.iconify.design/?query=github
 import icon__m2mm from './icon__m2mm.svg';
-import icon__github from './icon__github.svg'
+import icon__github from './icon__github.svg';
+import icon__newtab from './icon__newtab.svg';
+import icon__newtab_selected from './icon__newtab_selected.svg';
+
+const isOpenInNewTab = ref(false);
+
+let observer: MutationObserver | null = null;
+
+const isChromeExtensionEnv = () => location.href.startsWith('chrome-extension://');
+const isAbsoluteUrl = (url) => /^(https?:\/\/|\/\/)/.test(url); // 判断是否是绝对路径 - 匹配 http:// 或 https:// 或 // 的链接
+
+const handleTabOpen = () => {
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+
+      if (!isAbsoluteUrl(link.href)) return;
+
+      const target = link.target || '_self';
+      
+      if (isChromeExtensionEnv()) {
+        target === '_self' ? chrome.tabs.update({ url: link.href }) : chrome.tabs.create({ url: link.href });
+      } else {
+        target === '_self' ? window.open(link.href, '_self') : window.open(link.href, '_blank');
+      }
+    });
+  });
+};
+
+const openInNewTab = () => {
+  document.querySelectorAll('a').forEach(a => a.target = '_blank');
+  isOpenInNewTab.value = true;
+};
+
+const openInCurTab = () => {
+  document.querySelectorAll('a').forEach(a => a.target = '_self');
+  isOpenInNewTab.value = false;
+};
+
+const toggleTabState = () => isOpenInNewTab.value ? openInCurTab() : openInNewTab();
 
 const transformer = new Transformer();
 
@@ -28,7 +68,9 @@ let markmap: Markmap | null = null;
 
 let mdStr: string = ''; // msg from user's clipboard
 
-onMounted(async () => await updateMM());
+onMounted(async () => {
+  await updateMM();
+});
 
 // !NOTE 当 expandLevel 变化后立刻更新 markmap 有时会失败。
 // watch(expandLevel, async () => await updateMM());
@@ -105,11 +147,31 @@ async function updateMM() {
       console.error('error - markmap.fit =>', e);
     });
   }
+  observeMarkmapChanges();
+  handleTabOpen();
 }
 
 async function destroyMM(delay = 0) {
   if (markmap) markmap.destroy();
   return new Promise(resolve => setTimeout(resolve, delay));
+}
+
+function observeMarkmapChanges() {
+  if (observer) observer.disconnect(); // 停止观察
+  const markmapContainer = markmapSvgRef.value;
+
+  // 每次 DOM 更新时执行 handleTabOpen
+  observer = new MutationObserver(() => {
+    console.log('observer');
+    handleTabOpen();
+  });
+
+  // 配置观察器监听子节点的变动、子树变动等
+  observer.observe(markmapContainer, {
+    childList: true,    // 监听子节点变动
+    subtree: true,      // 监听子树变动
+    attributes: true,   // 监听属性变动
+  });
 }
 
 // #region auto parse github article
@@ -165,6 +227,12 @@ async function destroyMM(delay = 0) {
       <button @click="genMM_Clipboard" title="Paste content from the clipboard and generate a markmap mind map.">paste</button>
       <div title="Input the expand level">level: <input type="number" min="1" step="1" max="100" style="width: 2.5rem;" placeholder="level" v-model="expandLevel"></div>
       <button @click="updateMM" title="Update the expand level.">update</button>
+      <span 
+        title="toggle open tab" 
+        :class="{ selected: isOpenInNewTab }" 
+        @click="toggleTabState">
+        <img :src="isOpenInNewTab ? icon__newtab_selected : icon__newtab" alt="toggle open tab" />
+      </span>
       <a href="https://tdahuyou.github.io/m2mm/" target="_blank" title="m2mm live access link">
         <img :src="icon__m2mm" alt="m2mm live" />
       </a>
@@ -204,11 +272,8 @@ async function destroyMM(delay = 0) {
     line-height: 1.5rem;
 }
 
-.markmap-wrapper .btn-group a {
-  color: #1E90FF;
-}
-
-.markmap-wrapper .btn-group a img {
+.markmap-wrapper .btn-group a img,
+.markmap-wrapper .btn-group span img {
   width: 1.2rem;
   vertical-align: middle;
 }
